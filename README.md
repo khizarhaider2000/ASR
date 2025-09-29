@@ -7,7 +7,7 @@ PyTorch NN model
 
 First clone remote repo with:
 ```
-git clone ""
+git clone https://github.com/yaoruixuu/ASR.git
 ```
 
 Create and activate a virtual environment to isolate depencies:
