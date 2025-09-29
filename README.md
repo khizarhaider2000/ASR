@@ -10,3 +10,8 @@ Create and activate a virtual environment to isolate depencies:
 python3 -m venv your_venv_name
 source your_venv_name/bin/activate
 ```
+
+Install required libraries in requirements.txt:
+```
+pip3 install -r requirements.txt
+```
