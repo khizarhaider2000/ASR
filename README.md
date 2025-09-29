@@ -21,7 +21,7 @@ Install required libraries in requirements.txt:
 pip3 install -r requirements.txt
 ```
 
-There are 25 classification classes:
+Model is trained on 25 classification classes:
 1. "I need water"
 2. "I'm hungry"
 3. "Please help me"
@@ -47,3 +47,5 @@ There are 25 classification classes:
 23. "I feel sick"
 24. "I like this"
 25. "I don't like this"
+
+# Pipeline currently supports .wav format
