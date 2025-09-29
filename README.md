@@ -48,4 +48,10 @@ Model is trained on 25 classification classes:
 24. "I like this"
 25. "I don't like this"
 
-# Pipeline currently supports .wav format
+## How to Make an Inference
+Pipeline currently supports .wav format
+
+make an inference with the inference function in  model.py
+```
+inference(path)
+```
