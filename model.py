@@ -126,6 +126,19 @@ def train():
 
 
 def inference(path):
+    mapping = {}
+    phrases = [
+    "I need water","I'm hungry","Please help me","Yes","No","Thank you","I'm tired",
+    "I want to go outside","Stop","Go","More","Less","I need the bathroom",
+    "I don't understand","Wait","Come here","Good morning","Good night","I'm happy",
+    "I'm sad","I need medicine","Call someone","I feel sick","I like this","I don't like this"
+    ]
+
+    for i in range(len(phrases)):
+        mapping[str(i)] = phrases[i]
+        if i<10:
+            mapping['0'+str(i)] = phrases[i]
+        mapping[str(i)] = phrases[i]
 
     # Load processor + wav2vec2 again
     processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
@@ -156,9 +169,24 @@ def inference(path):
 
     # Map index back to phrase
     idx_to_label = {v: k for k, v in label_map.items()}
+    print(idx_to_label)
     predicted_phrase = idx_to_label[predicted_idx]
 
-    print(f"Predicted phrase: {predicted_phrase}")
+    return mapping[predicted_phrase]
 
 
-inference("Yaorui-Test-21.wav")
+
+def text_to_speech_pyttsx3(text, rate=150, volume=1.0):
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.setProperty('rate', rate) # Speed of speech
+    engine.setProperty('volume', volume) # Volume level (0.0 to 1.0)
+    engine.say(text)
+    engine.runAndWait()
+
+    
+
+
+classification = inference("test-3-7.wav")
+
+text_to_speech_pyttsx3(classification, rate=175)
