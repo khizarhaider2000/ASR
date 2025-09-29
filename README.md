@@ -2,6 +2,8 @@
 ASR for cerebral palsy
 
 PyTorch NN model
+<img width="1025" height="205" alt="image" src="https://github.com/user-attachments/assets/38971a53-c87b-44b9-9868-183f004344c2" />
+
 
 # Instructions:
 
