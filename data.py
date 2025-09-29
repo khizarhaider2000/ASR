@@ -4,9 +4,7 @@ import librosa
 import soundfile as sf
 import numpy as np
 
-# -------------------------------
-# CONFIGURATION
-# -------------------------------
+# phrase config
 phrases = [
     "I need water","I'm hungry","Please help me","Yes","No","Thank you","I'm tired",
     "I want to go outside","Stop","Go","More","Less","I need the bathroom",
@@ -21,16 +19,12 @@ speech_rates = [150, 180]  # limit to 2 rates
 augment_times = 5          # number of augmentations per base file
 tts_voices_to_use = 4      # number of voices to use (from system list)
 
-# -------------------------------
-# INITIALIZE TTS
-# -------------------------------
+# initialize TTS
 engine = pyttsx3.init()
 all_voices = engine.getProperty('voices')
 selected_voices = all_voices[:tts_voices_to_use]  # pick first N voices
 
-# -------------------------------
-# HELPER: AUGMENT AUDIO
-# -------------------------------
+
 def augment_audio(file_path, out_path):
     # Load audio
     y, sr = librosa.load(file_path, sr=16000)
@@ -47,9 +41,7 @@ def augment_audio(file_path, out_path):
     # Save augmented file
     sf.write(out_path, y_noisy, sr)
 
-# -------------------------------
-# GENERATE BASE AUDIO
-# -------------------------------
+# generate base audio
 file_count = 0
 for i, phrase in enumerate(phrases):
     for voice in selected_voices:
@@ -62,9 +54,7 @@ for i, phrase in enumerate(phrases):
 
 engine.runAndWait()
 
-# -------------------------------
-# APPLY AUGMENTATIONS
-# -------------------------------
+# apply augmentations
 existing_files = [f for f in os.listdir(output_dir) if f.endswith(".wav")]
 aug_count = 0
 for f in existing_files:

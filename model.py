@@ -25,27 +25,23 @@ class PhraseClassifier(nn.Module):
 def train():
     data_dir = "fake_training_data"
 
-    # -------------------------------
     # Build label map from phrases
-    # -------------------------------
     phrases = sorted(list(set(
         re.search(r"phrase_(\d+)_", f).group(1)
         for f in os.listdir(data_dir) if f.endswith(".wav")
     )))
     label_map = {label: idx for idx, label in enumerate(phrases)}
 
-    # -------------------------------
     # Initialize wav2vec2
-    # -------------------------------
+
     processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
     model = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-base-960h")
     model.eval()
 
     X, y = [], []
 
-    # -------------------------------
     # Load dataset
-    # -------------------------------
+
     for f in os.listdir(data_dir):
         if not f.endswith(".wav"):
             continue
@@ -68,9 +64,8 @@ def train():
     X = np.stack(X)
     y = np.array(y)
 
-    # -------------------------------
     # Train/test split
-    # -------------------------------
+
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
