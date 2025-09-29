@@ -5,6 +5,11 @@ PyTorch NN model
 
 # Instructions:
 
+First clone remote repo with:
+```
+git clone ""
+```
+
 Create and activate a virtual environment to isolate depencies:
 ```
 python3 -m venv your_venv_name
