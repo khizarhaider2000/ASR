@@ -53,7 +53,7 @@ Model is trained on 25 classification classes:
 ## How to Make an Inference
 Pipeline currently supports .wav format
 
-make an inference with the inference function in  model.py
+Make an inference with the inference function in  model.py
 ```
 inference(path)
 ```
