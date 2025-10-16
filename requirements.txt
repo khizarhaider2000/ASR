@@ -1,7 +1,10 @@
-os
 torch
 librosa
 transformers
 numpy
 scikit-learn
 pyttsx3
+soundfile
+scipy
+noisereduce
+pyloudnorm
