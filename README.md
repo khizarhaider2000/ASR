@@ -20,6 +20,8 @@ All dependencies are listed in `requirements.txt`. Key packages:
 - numpy
 - scikit-learn
 - pyttsx3
+- gtts
+- pygame
 - soundfile
 - scipy
 - noisereduce
@@ -34,13 +36,21 @@ pip install -r requirements.txt
 ## Quick Start
 
 1. Make sure the `output/combined_rf.joblib` and `output/combined_scaler.joblib` artifacts exist. If not, rerun `python train_combined_model.py`.
-2. Run inference on a `.wav` file (16 kHz mono) using the combined model:
+2. Launch the audio demo (plays the clip, displays the prediction, and speaks the result). You can pass any `.wav` file in `test_data/` or your own 16 kHz mono clip:
 
 ```bash
-python inference_real.py test_data/cleaned_real_3c.wav
+python demo.py test_data/cleaned_real_3c.wav
 ```
 
-Expected output: the predicted phrase printed on screen and spoken aloud via `pyttsx3`.
+Expected output: formatted console updates, audio playback of the original clip, the model’s predicted phrase with confidence, and a spoken response synthesized via gTTS.
+
+3. For a point-and-click experience with waveform visualization, dropdown file selection, and batch testing controls, launch the GUI:
+
+```bash
+python demo_gui.py
+```
+
+The GUI reuses the same model pipeline, embeds a waveform plot, and highlights correct vs. incorrect predictions while tracking accuracy.
 
 ## Model Performance
 
@@ -55,6 +65,7 @@ Expected output: the predicted phrase printed on screen and spoken aloud via `py
 - Works well: commands with distinctive wording, especially the longest (“remind me...”) and shortest (“call Computerwise”) clips.
 - Struggles occasionally: Class 1 (“Elvis Presley”) can be confused if background music/noise is present; the two-stage model (`train_two_stage.py`) mitigates this.
 - Best results when clips last between 3 s and 10 s with minimal background noise.
+- Live demos (`demo.py`, `demo_gui.py`) rely on gTTS for speech synthesis; ensure the machine has an active internet connection or the spoken feedback will fall back to console messaging.
 
 ## Data Structure
 
