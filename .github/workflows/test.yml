@@ -23,4 +23,4 @@ jobs:
           python -m compileall real_phrases.py
       
       - name: Verify phrase mappings
-        run: python -c "from real_phrases import REAL_PHRASE_MAP; assert len(REAL_PHRASE_MAP) == 10"
+        run: python -c "from real_phrases import phrases; assert len(REAL_PHRASE_MAP) == 10"
