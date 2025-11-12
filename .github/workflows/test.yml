@@ -1,0 +1,26 @@
+name: ASR Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Check code compiles
+        run: |
+          python -m compileall train_combined_model.py
+          python -m compileall demo.py
+          python -m compileall real_phrases.py
+      
+      - name: Verify phrase mappings
+        run: python -c "from real_phrases import REAL_PHRASE_MAP; assert len(REAL_PHRASE_MAP) == 10"
