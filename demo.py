@@ -9,7 +9,7 @@ import argparse
 import sys
 import time
 from pathlib import Path
-from typing import Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import joblib
 import librosa
@@ -20,8 +20,38 @@ from train_combined_model import SAMPLE_RATE, compute_content_features
 
 MODEL_PATH = Path("output/combined_rf.joblib")
 SCALER_PATH = Path("output/combined_scaler.joblib")
-DEFAULT_AUDIO = Path("test_data/cleaned_real_3c.wav")
+DEMO_DIRECTORIES: Tuple[Path, ...] = (Path("test_data"), Path("cleaned_real_data_v2"))
+SAMPLE_PATTERN = "cleaned_real_*c.wav"
 SEPARATOR = "=" * 60
+
+
+def discover_demo_samples(
+    pattern: str = SAMPLE_PATTERN, directories: Sequence[Path] = DEMO_DIRECTORIES
+) -> List[Path]:
+    """Return unique demo audio paths from the provided directories."""
+    samples: Dict[str, Path] = {}
+    for directory in directories:
+        if not directory.exists():
+            continue
+        for candidate in sorted(directory.glob(pattern)):
+            samples.setdefault(candidate.name, candidate)
+
+    if not samples:
+        raise RuntimeError(
+            "No demo audio files found. Ensure 'cleaned_real_data_v2/' "
+            "or 'test_data/' contains cleaned_real_*c.wav clips."
+        )
+
+    return [samples[name] for name in sorted(samples)]
+
+
+try:
+    AVAILABLE_SAMPLE_PATHS = discover_demo_samples()
+except RuntimeError as exc:  # pragma: no cover - import-time guard
+    raise SystemExit(str(exc)) from exc
+
+AVAILABLE_SAMPLE_NAMES = [path.name for path in AVAILABLE_SAMPLE_PATHS]
+DEFAULT_AUDIO = AVAILABLE_SAMPLE_PATHS[0]
 
 
 def require_module(name: str) -> None:
@@ -121,11 +151,32 @@ def main() -> None:
     parser.add_argument(
         "audio_path",
         nargs="?",
-        default=str(DEFAULT_AUDIO),
-        help="Path to a WAV file to evaluate (default: %(default)s)",
+        help="Path to a WAV file to evaluate (overrides --sample)",
+    )
+    parser.add_argument(
+        "--sample",
+        choices=AVAILABLE_SAMPLE_NAMES,
+        help="Pick one of the discovered cleaned_real_*c.wav clips by name",
+    )
+    parser.add_argument(
+        "--list-samples",
+        action="store_true",
+        help="List available demo clips and exit",
     )
     args = parser.parse_args()
-    audio_path = Path(args.audio_path)
+
+    if args.list_samples:
+        print("Available demo clips:")
+        for path in AVAILABLE_SAMPLE_PATHS:
+            print(f"  {path.name} ({path.parent})")
+        return
+
+    if args.sample:
+        audio_path = next(path for path in AVAILABLE_SAMPLE_PATHS if path.name == args.sample)
+    elif args.audio_path:
+        audio_path = Path(args.audio_path)
+    else:
+        audio_path = DEFAULT_AUDIO
 
     display_banner(audio_path)
 

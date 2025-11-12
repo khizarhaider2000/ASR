@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import librosa
 import numpy as np
@@ -21,11 +21,10 @@ from demo import (
     predict_phrase,
     play_audio,
     speak_text,
+    discover_demo_samples,
 )
 from real_phrases import phrases
 from train_combined_model import SAMPLE_RATE, extract_label
-
-TEST_DIR = Path("test_data")
 
 
 class DemoApp:
@@ -43,11 +42,13 @@ class DemoApp:
             root.destroy()
             raise
 
-        self.test_files = self._discover_test_files()
-        if not self.test_files:
-            messagebox.showerror("No Test Files", f"No WAV files found in {TEST_DIR}.")
+        try:
+            self.test_files = discover_demo_samples()
+        except RuntimeError as exc:
+            messagebox.showerror("No Demo Audio", str(exc))
             root.destroy()
             raise SystemExit(1)
+        self.sample_lookup = {path.name: path for path in self.test_files}
 
         self.total_runs = 0
         self.correct_runs = 0
@@ -59,9 +60,6 @@ class DemoApp:
         self.accuracy_var = tk.StringVar(value="Accuracy: 0/0 (--)")
 
         self._build_layout()
-
-    def _discover_test_files(self) -> List[Path]:
-        return sorted(TEST_DIR.glob("*.wav"))
 
     def _build_layout(self) -> None:
         control_frame = ttk.Frame(self.root)
@@ -226,9 +224,9 @@ class DemoApp:
             return
 
         file_name = self.selected_file.get()
-        audio_path = TEST_DIR / file_name
-        if not audio_path.is_file():
-            messagebox.showerror("Missing File", f"{audio_path} was not found.")
+        audio_path = self.sample_lookup.get(file_name)
+        if audio_path is None or not audio_path.is_file():
+            messagebox.showerror("Missing File", f"{file_name} was not found.")
             return
 
         self.is_running.set()

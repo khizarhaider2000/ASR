@@ -24,6 +24,7 @@ from typing import List, Tuple
 import joblib
 import librosa
 import numpy as np
+import re
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -36,7 +37,7 @@ CLEAN_DIR = Path("cleaned_real_data_v2")
 AUG_DIR = Path("augmented_real_data_v2")
 TEST_DIR = Path("test_data")
 
-CLEAN_PATTERN = "cleaned_real_[1-5][ab].wav"
+CLEAN_PATTERN = "cleaned_real_*[ab].wav"
 AUG_PATTERN = "*.wav"
 TEST_FILES = [
     "cleaned_real_1c.wav",
@@ -44,6 +45,11 @@ TEST_FILES = [
     "cleaned_real_3c.wav",
     "cleaned_real_4c.wav",
     "cleaned_real_5c.wav",
+    "cleaned_real_6c.wav",  # NEW
+    "cleaned_real_7c.wav",  # NEW
+    "cleaned_real_8c.wav",  # NEW
+    "cleaned_real_9c.wav",  # NEW
+    "cleaned_real_10c.wav"  # NEW
 ]
 
 SAMPLE_RATE = 16_000
@@ -51,12 +57,15 @@ N_MFCC = 13
 
 
 def extract_label(name: str) -> int:
-    """Parse label from filename (`cleaned_real_X?.wav`)."""
+    """Parse label from filename (`cleaned_real_X?.wav` or augmented variants)."""
     try:
-        number_part = name.split("_")[2]  # e.g., "1a.wav"
-        digit = int(number_part[0])
-    except (IndexError, ValueError) as exc:
+        match = re.search(r"cleaned_real_(\d+)[a-z]", name)
+        if not match:
+            raise ValueError(f"Invalid format in '{name}'")
+        digit = int(match.group(1))
+    except (ValueError, AttributeError) as exc:
         raise ValueError(f"Could not parse label from '{name}'") from exc
+
     label = digit - 1
     if label not in phrases:
         raise ValueError(f"Label {label} out of range for file '{name}'.")
@@ -125,15 +134,25 @@ def load_training_data() -> Tuple[np.ndarray, np.ndarray]:
 
 def load_test_data() -> Tuple[np.ndarray, np.ndarray, List[Path]]:
     if not TEST_DIR.exists():
-        raise FileNotFoundError(f"Directory '{TEST_DIR}' not found.")
+        print(f"Warning: directory '{TEST_DIR}' not found. Falling back to '{CLEAN_DIR}'.")
 
-    test_paths = []
+    test_paths: List[Path] = []
     for name in TEST_FILES:
-        path = TEST_DIR / name
-        if not path.is_file():
-            raise FileNotFoundError(f"Test file '{path}' not found.")
+        preferred = TEST_DIR / name
+        fallback = CLEAN_DIR / name
+
+        if preferred.is_file():
+            path = preferred
+        elif fallback.is_file():
+            path = fallback
+        else:
+            raise FileNotFoundError(
+                f"Test file '{preferred}' not found and no fallback at '{fallback}'."
+            )
         test_paths.append(path)
-    print(f"Loading test data from test_data/: {len(test_paths)} files")
+
+    origin = TEST_DIR if TEST_DIR.exists() else CLEAN_DIR
+    print(f"Loading test data from {origin}/: {len(test_paths)} files")
     print("Test files:")
     for path in test_paths:
         print(f"  - {path.name}")
